@@ -20,6 +20,30 @@ function App() {
     });
   }, []);
 
+  const decryptPass = (encryption) => {
+    axios
+      .post("http://localhost:3001/decryptpassword", {
+        password: encryption.password,
+        iv: encryption.iv,
+      })
+      .then((res) => {
+        console.log(res.data);
+
+        setPasswordList(
+          passwordList.map((val) => {
+            return val.id == encryption.id
+              ? {
+                  id: val.id,
+                  password: val.password,
+                  title: res.data,
+                  iv: val.iv,
+                }
+              : val;
+          })
+        );
+      });
+  };
+
   return (
     <div className="App">
       <div className="AddingPassword">
@@ -41,9 +65,15 @@ function App() {
       </div>
 
       <div className="Passwords">
-        {passwordList.map((val) => {
+        {passwordList.map((val, key) => {
           return (
-            <div className="password">
+            <div
+              className="password"
+              onClick={() => {
+                decryptPass({ password: val.password, iv: val.iv, id: val.id });
+              }}
+              key={key}
+            >
               <h3>{val.title}</h3>
             </div>
           );
